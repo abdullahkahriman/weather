@@ -1,112 +1,141 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
-import React from 'react';
-import type {Node} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
+  Dimensions,
+  ImageBackground,
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
+  TextInput,
   View,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const backgroundImages = [
+  'https://i.pinimg.com/originals/85/ce/21/85ce211c6af636a911dfd0cf52b79d32.jpg',
+  'https://i.pinimg.com/originals/70/97/83/70978302c570899f850da76272a6451f.jpg',
+  'https://wallpaperaccess.com/full/1097513.jpg',
+  'http://ayay.co.uk/mobiles/weather/strange/northern-lights.jpg'
+]
+const randomBackground = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
 
-const Section = ({children, title}): Node => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+const App = () => {
+  // const isDarkMode = useColorScheme() === 'dark';
 
-const App: () => Node = () => {
-  const isDarkMode = useColorScheme() === 'dark';
+  const _apiKey = "e4041ddb2ea5e59b90cbcaabee8e4436";
+  const [isLoading, setLoading] = useState(true);
+  const [location, setLocation] = useState('istanbul');
+  const [data, setData] = useState({});
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  useEffect(() => {
+    getWeather()
+  }, [location])
+
+  const getWeather = () => {
+    if (location && location.trim() != '') {
+      console.log("start.....")
+      return fetch(`http://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${_apiKey}`)
+        .then(resp => resp.json())
+        .then(json => setData(json))
+        .catch((error) => console.error(error))
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+    <SafeAreaView style={styles.wrapper}>
+      <ImageBackground
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: Dimensions.get('window').width,
+          height: Dimensions.get('window').height,
+        }}
+        source={{ uri: randomBackground }}>
+        <View style={styles.container}>
+          <Text style={[styles.title, styles.textShadow, { letterSpacing: 2 }]}>
+            Weather
+          </Text>
+
+          {/* input */}
+          <TextInput value={location} onChangeText={val => setLocation(val)}
+            placeholder="Location"
+            style={styles.input}
+            placeholderTextColor="white" />
+
+          {isLoading && <ActivityIndicator color="#fff" size={32} />}
+
+          {(!isLoading && data && data.message) ? (
+            <View>
+              <Text style={{ fontSize: 14, color: 'red', backgroundColor: 'rgba(0,0,0,0.8)', padding: 10, textAlign: 'center' }}>Error! Please try again later.</Text>
+            </View>
+          ) : null}
+
+          {!isLoading && data && (
+            <View>
+              {/* location */}
+              <Text style={[styles.title, styles.textShadow, { fontSize: 20, letterSpacing: 2 }]}>
+                {data.name} {`${data.sys?.country ? ', ' + data.sys.country : ''}`}
+              </Text>
+
+              {/* degree */}
+              {
+                data.main?.temp &&
+                <Text style={[styles.title, styles.textShadow, { fontSize: 20, }]}>{Math.round(data.main.temp)}°C</Text>
+              }
+
+              {/* Description */}
+              {
+                data.weather && data.weather[0].description &&
+                <Text style={[styles.title, styles.textShadow, { fontSize: 14, }]}>{data.weather[0].description}</Text>
+              }
+
+              {/* Sub description */}
+              {
+                data.main?.temp_min && data.main?.temp_max &&
+                <Text style={[styles.title, styles.textShadow, { fontSize: 13, }]}>{Math.round(data.main.temp_min)}°C / {Math.round(data.main.temp_max)}°C</Text>
+              }
+            </View>
+          )}
         </View>
-      </ScrollView>
+      </ImageBackground>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  wrapper: {
+    flex: 1
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  container: {
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 20
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  title: {
+    fontSize: 25,
+    paddingVertical: 5,
+    color: '#fff',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
-  highlight: {
-    fontWeight: '700',
+
+  //input
+  input: {
+    borderBottomColor: 'white',
+    borderBottomWidth: 1,
+    color: '#fff',
+    fontSize: 14,
+    marginBottom: 10
   },
+
+  //text shadow
+  textShadow: {
+    textShadowColor: 'rgba(0,0,0,0.9)',
+    textShadowRadius: 5
+  }
 });
 
 export default App;

@@ -30,7 +30,7 @@ const App = () => {
   const getWeather = () => {
     if (location && location.trim() != '') {
       setLoading(true)
-      return fetch(`http://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${_apiKey}`)
+      return fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${_apiKey}`)
         .then(resp => resp.json())
         .then(json => setData(json))
         .catch((error) => console.error(error))

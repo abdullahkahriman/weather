@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -12,16 +12,14 @@ import {
 } from 'react-native';
 
 const backgroundImages = [
-  'https://i.pinimg.com/originals/85/ce/21/85ce211c6af636a911dfd0cf52b79d32.jpg',
-  'https://i.pinimg.com/originals/70/97/83/70978302c570899f850da76272a6451f.jpg',
-  'https://wallpaperaccess.com/full/1097513.jpg',
-  'http://ayay.co.uk/mobiles/weather/strange/northern-lights.jpg'
-]
+  require('./src/assets/bg1.jpg'),
+  require('./src/assets/bg2.jpg'),
+  require('./src/assets/bg3.jpg'),
+  require('./src/assets/bg4.jpg')
+];
 const randomBackground = backgroundImages[Math.floor(Math.random() * backgroundImages.length)];
 
 const App = () => {
-  // const isDarkMode = useColorScheme() === 'dark';
-
   const _apiKey = "e4041ddb2ea5e59b90cbcaabee8e4436";
   const [isLoading, setLoading] = useState(false);
   const [location, setLocation] = useState('');
@@ -30,7 +28,7 @@ const App = () => {
   const getWeather = () => {
     if (location && location.trim() != '') {
       setLoading(true)
-      return fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${_apiKey}`)
+      return fetch(`https://api.openweathermap.org/data/2.5/weather?q=${(location.trim())}&units=metric&appid=${_apiKey}`)
         .then(resp => resp.json())
         .then(json => setData(json))
         .catch((error) => console.error(error))
@@ -50,7 +48,7 @@ const App = () => {
           width: Dimensions.get('window').width,
           height: Dimensions.get('window').height,
         }}
-        source={{ uri: randomBackground }}>
+        source={randomBackground}>
         <View style={styles.container}>
           <Text style={[styles.title, styles.textShadow, { letterSpacing: 2 }]}>
             Weather
@@ -62,7 +60,7 @@ const App = () => {
               placeholder="Location"
               style={styles.input}
               placeholderTextColor="white" />
-            <TouchableHighlight onPress={() => getWeather()} style={{ backgroundColor: 'rgba(0,0,0,0.5)', marginBottom: 5, borderRadius: 5, width: 40, alignItems: 'center', justifyContent: 'center' }}>
+            <TouchableHighlight disabled={!location && location.trim() != ''} onPress={() => getWeather()} style={{ backgroundColor: 'rgba(0,0,0,0.5)', marginBottom: 5, borderRadius: 5, width: 40, alignItems: 'center', justifyContent: 'center' }}>
               <Text style={{ color: '#FFF', fontSize: 14 }}>GET</Text>
             </TouchableHighlight>
           </View>

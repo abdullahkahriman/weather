@@ -24,7 +24,7 @@ const App = () => {
 
   const _apiKey = "e4041ddb2ea5e59b90cbcaabee8e4436";
   const [isLoading, setLoading] = useState(false);
-  const [location, setLocation] = useState('istanbul');
+  const [location, setLocation] = useState('');
   const [data, setData] = useState({});
 
   const getWeather = () => {
@@ -67,37 +67,40 @@ const App = () => {
             </TouchableHighlight>
           </View>
 
+          {/* loading */}
           {isLoading && <ActivityIndicator color="#fff" size={32} />}
 
+          {/* error message */}
           {(!isLoading && data && data.message) ? (
             <View>
               <Text style={{ fontSize: 14, color: 'red', backgroundColor: 'rgba(0,0,0,0.8)', padding: 10, textAlign: 'center' }}>Error! Please try again later.</Text>
             </View>
           ) : null}
 
+          {/* get weather data */}
           {!isLoading && data && (
             <View>
               {/* location */}
-              <Text style={[styles.title, styles.textShadow, { fontSize: 20, letterSpacing: 2 }]}>
+              <Text style={[styles.title, styles.textShadow, { fontSize: 30, letterSpacing: 2 }]}>
                 {data.name}{`${data.sys?.country ? ', ' + data.sys.country : ''}`}
               </Text>
 
               {/* degree */}
               {
                 data.main?.temp &&
-                <Text style={[styles.title, styles.textShadow, { fontSize: 20, }]}>{Math.round(data.main.temp)}°C</Text>
+                <Text style={[styles.title, styles.textShadow, { fontSize: 27, }]}>{Math.round(data.main.temp)}°C</Text>
               }
 
-              {/* Description */}
+              {/* description */}
               {
                 data.weather && data.weather[0].description &&
-                <Text style={[styles.title, styles.textShadow, { fontSize: 14, }]}>{data.weather[0].description}</Text>
+                <Text style={[styles.title, styles.textShadow, { fontSize: 24, }]}>{data.weather[0].description}</Text>
               }
 
-              {/* Sub description */}
+              {/* sub description */}
               {
                 data.main?.temp_min && data.main?.temp_max &&
-                <Text style={[styles.title, styles.textShadow, { fontSize: 13, }]}>{Math.round(data.main.temp_min)}°C / {Math.round(data.main.temp_max)}°C</Text>
+                <Text style={[styles.title, styles.textShadow, { fontSize: 21, }]}>{Math.round(data.main.temp_min)}°C / {Math.round(data.main.temp_max)}°C</Text>
               }
             </View>
           )}

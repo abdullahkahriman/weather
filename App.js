@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  TouchableHighlight,
   View,
 } from 'react-native';
 
@@ -22,17 +23,13 @@ const App = () => {
   // const isDarkMode = useColorScheme() === 'dark';
 
   const _apiKey = "e4041ddb2ea5e59b90cbcaabee8e4436";
-  const [isLoading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(false);
   const [location, setLocation] = useState('istanbul');
   const [data, setData] = useState({});
 
-  useEffect(() => {
-    getWeather()
-  }, [location])
-
   const getWeather = () => {
     if (location && location.trim() != '') {
-      console.log("start.....")
+      setLoading(true)
       return fetch(`http://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${_apiKey}`)
         .then(resp => resp.json())
         .then(json => setData(json))
@@ -60,10 +57,15 @@ const App = () => {
           </Text>
 
           {/* input */}
-          <TextInput value={location} onChangeText={val => setLocation(val)}
-            placeholder="Location"
-            style={styles.input}
-            placeholderTextColor="white" />
+          <View style={styles.inputContainer}>
+            <TextInput value={location} onChangeText={val => setLocation(val)}
+              placeholder="Location"
+              style={styles.input}
+              placeholderTextColor="white" />
+            <TouchableHighlight onPress={() => getWeather()} style={{ backgroundColor: 'rgba(0,0,0,0.5)', marginBottom: 5, borderRadius: 5, width: 40, alignItems: 'center', justifyContent: 'center' }}>
+              <Text style={{ color: '#FFF', fontSize: 14 }}>GET</Text>
+            </TouchableHighlight>
+          </View>
 
           {isLoading && <ActivityIndicator color="#fff" size={32} />}
 
@@ -77,7 +79,7 @@ const App = () => {
             <View>
               {/* location */}
               <Text style={[styles.title, styles.textShadow, { fontSize: 20, letterSpacing: 2 }]}>
-                {data.name} {`${data.sys?.country ? ', ' + data.sys.country : ''}`}
+                {data.name}{`${data.sys?.country ? ', ' + data.sys.country : ''}`}
               </Text>
 
               {/* degree */}
@@ -123,12 +125,17 @@ const styles = StyleSheet.create({
   },
 
   //input
-  input: {
+  inputContainer: {
     borderBottomColor: 'white',
     borderBottomWidth: 1,
+    marginBottom: 10,
+    flexDirection: 'row',
+    height: 40
+  },
+  input: {
     color: '#fff',
     fontSize: 14,
-    marginBottom: 10
+    flex: 1
   },
 
   //text shadow
